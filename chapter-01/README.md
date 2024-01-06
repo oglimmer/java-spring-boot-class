@@ -4,9 +4,9 @@
 
 A running REST API without functionality.
 
-## Steps 1
+## Step 1 - generate base project
 
-* all Spring projects starts at https://start.spring.io/
+* all Spring projects starts at https://start.spring.io/ - so you have to go there and create a basic project. the following sections will help you to make the right choices before you click Generate.
 
 ### how to build a project
 
@@ -61,7 +61,7 @@ this reduces the code you have to write massively. the lib provides java annotat
 
 this dependency makes this project a REST API. without it is just a useless java program doing nothing at all.
 
-## Steps 2
+## Step 2 - open in IDE and start the REST API server 
 
 Click "generate" on https://start.spring.io/, download the zip, unzip and open in IntelliJ or VS Code.
 
@@ -73,15 +73,21 @@ Let's start the "Java Spring Boot Application" and see if it starts without erro
 
 ### starting in intellij
 
-You can run the program with one of the play icons : ![](intellij.png)
+You can run the program with one of the play icons, always use "debug"
+
+![](intellij.png)
 
 ### starting in vscode
 
 Make sure you have all the vscode plugins for java, maven (or gradle) installed. this https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-java-pack is a good start.
 
-You can run the program with "debug" : ![](vscode.png)
+You can run the program with "debug" : 
+
+![](vscode.png)
 
 ### starting on command line
+
+this is easy, but you won't have a debugger attached, so I would not recommend it for development. but I think it's good to know how to start a Spring application via terminal.
 
 ```bash
 ./mvnw spring-boot:run
