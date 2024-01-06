@@ -1,0 +1,102 @@
+# Chapter 01
+
+## Goal
+
+A running REST API without functionality.
+
+## Steps 1
+
+* all Spring projects starts at https://start.spring.io/
+
+### how to build a project
+
+* java projects are either build with "maven" or "gradle"
+* maven is XML based and simple
+* gradle is groovy/kotlin based and more sophisticated (but more difficult to use)
+
+### language
+
+* Spring boot can be wirtten in Java, Kotlin or Groovy
+* Java should be the default unless you have a good reason to use Kotlin (really nobody uses Groovy)
+
+### Version
+
+* Always go for the latest stable version
+
+### Project metadata
+
+* All Java projects (maven & gradle) need to have `group`. this is your reversed domain if you have a domain or your discord name. at the end it needs to make your project namespace unique. I always use com.oglimmer for my projects
+* `Artifact` is your project name. for this should be kniffel.
+* `Name` is your project name again. for this should be kniffel.
+* `Package name` is again your group + artifact, so for me it is "com.oglimmer.kniffel" for this project.
+* `Packaging` keep jar. Nobody uses war anymore.
+* `Java` - up to you feel free to be frisky and go for the latest version.
+
+Why is there ...
+
+* group + artifact -> this is the name for "software package" living in a central repository (like https://mvnrepository.com/)
+* package name -> this is the java package namespace
+
+### Dependencies
+
+Here it gets as complicated as you want ;)
+
+Java and Spring Boot is made for enterprise applications - therefore it supports "everything".
+
+We only need 3 dependencies for now:
+
+* Spring Boot DevTools
+* Lombok
+* Spring Web
+
+#### Spring Boot DevTools
+
+it make development easier with "auto reload during dev time".
+
+#### Lombok
+
+this reduces the code you have to write massively. the lib provides java annotations so you don't have to type a lot of code. I think you should use.
+
+#### spring Web
+
+this dependency makes this project a REST API. without it is just a useless java program doing nothing at all.
+
+## Steps 2
+
+Click "generate" on https://start.spring.io/, download the zip, unzip and open in IntelliJ or VS Code.
+
+Open src/main/java/your-package-names/.../.../KniffelApplication.java
+
+This should compile and you don't see any errors.
+
+Let's start the "Java Spring Boot Application" and see if it starts without errors.
+
+### starting in intellij
+
+You can run the program with one of the play icons : ![](intellij.png)
+
+### starting in vscode
+
+Make sure you have all the vscode plugins for java, maven (or gradle) installed. this https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-java-pack is a good start.
+
+You can run the program with "debug" : ![](vscode.png)
+
+### starting on command line
+
+```bash
+./mvnw spring-boot:run
+```
+
+### After started ....
+
+After you have started the program it should look like this:
+
+![](started.png)
+
+To test if the REST API is listening:
+
+Open with a browser: http://localhost:8080 and you should see:
+
+![](open_project.png)
+
+The error is ok, as we haven't added any content or endpoints.
