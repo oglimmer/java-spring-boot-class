@@ -59,7 +59,7 @@ this reduces the code you have to write massively. the lib provides java annotat
 
 #### spring Web
 
-this dependency makes this project a REST API. without it is just a useless java program doing nothing at all.
+this dependency makes this project a REST API. without it, it is just a useless java program doing nothing at all.
 
 ## Step 2 - open in IDE and start the REST API server 
 
