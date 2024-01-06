@@ -24,7 +24,7 @@ You have a running REST API - without functionality but it returns http response
 ### how to build a project
 
 * java projects are either build with "maven" or "gradle"
-* maven is XML based and simple
+* maven is XML based and simple - it defines how the project is build, like the java version, its name and the dependencies
 * gradle is groovy/kotlin based and more sophisticated (but more difficult to use)
 
 ### language
@@ -158,3 +158,40 @@ Create a new repo in your github/gitlab account and push your project there.
 * all java spring boot projects start on https://start.spring.io/
 * selecting the right dependencies for a spring boot project can be tricky, ask someone who's familiar with spring boot
 * REST is based on http and this can be examined in detail with `curl` on the command line
+
+# Extras if you time
+
+* read the pom.xml - that's maven's build file. ask yourself if the content makes sense or why it is there
+* to see all the project's dependencies, type:
+
+```bash
+./mvnw dependency:tree
+```
+
+as you can see the project already has many indrect dependencies. Fefe is not a fan ;)
+
+* we can build a production version of the project
+
+```bash
+./mvnw package
+```
+
+This will create a "release package" as a jar in ./target. See target//kniffel-0.0.1-SNAPSHOT.jar
+
+You can start with via
+
+```bash
+java -jar target//kniffel-0.0.1-SNAPSHOT.jar
+````
+
+That's the file you would put into a docker container to deploy it to production.
+
+* you can see and run the tests
+
+```bash
+./mvnw test
+```
+
+It compiles (if needed) and runs the tests. As we haven't written any real tests, it runs the only test generated inside of src/test/java/com/oglimmer/kniffel/KniffelApplicationTests.java 
+
+Look at the file and you see that there is on method defined `contextLoads()`, but it doesn't have any content. So spring start it's internals for testing, called "it starts the application context". More in later chapters.
