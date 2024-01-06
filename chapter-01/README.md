@@ -1,8 +1,21 @@
 # Chapter 01
 
-## Goal
+Base project generation and IDE
+
+# Goal
 
 You have a running REST API - without functionality but it returns http responses.
+
+# Context and Knowledge
+
+* Java is widely used in companies and enterprises and the job market for java developers is huge, interesting and well paid
+* Java applications are backend or server applications. A UI / Desktop application in Java is not really a thing.
+* Java applications are either **JEE** (Java Enterprise Application) or **Spring Boot**, we will look at Spring Boot
+* what [REST](https://en.wikipedia.org/wiki/REST) is, is hard to grasp, but what people mean when they say "we have a REST API" is
+    * http(s) as a network protocol - you can use a browser, JavaScript inside the browser or curl to use your REST API
+    * it doesn't use cookies to maintain a session between subsequent calls, some REST APIs use cookies for authentication
+    * data is often considered a resource and the URL represents that. To create a user you do POST on "/api/users", to retrieve all users you do GET on "/api/users", to load the user oli you do GET on "/api/users/oli".
+    * usually JSON is used as input/output data format
 
 ## Step 1 - generate base project
 
@@ -105,7 +118,7 @@ Open with a browser: http://localhost:8080 and you should see:
 
 ![](open_project.png)
 
-The error is ok, as we haven't added any content or endpoints.
+The error is ok, as we haven't added any content or endpoints, but we know that the REST API server is starting and processing http requests.
 
 ## Step 3 - ways to test a REST API ...
 
@@ -125,6 +138,8 @@ curl "http://localhost:8080/" -v
 
 this should show a similar result as the browser. with curl we can also test any request method (POST, PUT, etc.) and we have full control over all headers or parameters in general. I will get back to curl.
 
+Also pay attention to the output, you can see bytes sent to the server as an "http request": they are marked with ">". And you can see the full "http response" from the server, all headers are marked with "<" and the body is just at the end. This is invaluable knowledge for debugging http/REST development.
+
 ### in the browser using Swagger / OpenAPI
 
 we will set up the project in a way that itself offers a web page to test itself. this will look like this https://math.oglimmer.de/swagger/ui
@@ -132,3 +147,14 @@ we will set up the project in a way that itself offers a web page to test itself
 ### any other REST API testing applicatoin
 
 There are many applications out there to test REST APIs. Maybe the most common one is https://www.postman.com/ - feel freel to check it out
+
+## Step 4 - push to git
+
+Create a new repo in your github/gitlab account and push your project there.
+
+# What we've learnt
+
+* all java projects are based on maven or gradle
+* all java spring boot projects start on https://start.spring.io/
+* selecting the right dependencies for a spring boot project can be tricky, ask someone who's familiar with spring boot
+* REST is based on http and this can be examined in detail with `curl` on the command line
