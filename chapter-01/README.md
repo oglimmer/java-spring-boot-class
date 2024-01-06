@@ -2,7 +2,7 @@
 
 ## Goal
 
-A running REST API without functionality.
+You have a running REST API - without functionality but it returns http responses.
 
 ## Step 1 - generate base project
 
@@ -106,3 +106,29 @@ Open with a browser: http://localhost:8080 and you should see:
 ![](open_project.png)
 
 The error is ok, as we haven't added any content or endpoints.
+
+## Step 3 - ways to test a REST API ...
+
+### the browser
+
+any GET request can be tested with a browser - as we did above.
+
+but you cannot easily test a POST, PUT, PATCH or DELETE request, so browser testing is not really ideal.
+
+### command line using curl
+
+I am a fan of the terminal, so I like REST API testing vial curl
+
+```bash
+curl "http://localhost:8080/" -v
+```
+
+this should show a similar result as the browser. with curl we can also test any request method (POST, PUT, etc.) and we have full control over all headers or parameters in general. I will get back to curl.
+
+### in the browser using Swagger / OpenAPI
+
+we will set up the project in a way that itself offers a web page to test itself. this will look like this https://math.oglimmer.de/swagger/ui
+
+### any other REST API testing applicatoin
+
+There are many applications out there to test REST APIs. Maybe the most common one is https://www.postman.com/ - feel freel to check it out
