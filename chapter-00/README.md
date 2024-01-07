@@ -17,7 +17,7 @@ You have Java installed.
 * the easiest way is to just install it via packet manager - alternatively you can use any distro and use it. Never install "OpenJDK from openjdk.org page" or any "Oracle Java"!
     * debian: `apt install openjdk-17-jdk` or https://adoptium.net/temurin/releases/ for a latest version of Java
     * macos: `brew install openjdk` (this installs the latest version)
-    * windows: I don't really know - maybe this: https://adoptium.net/temurin/releases/
+    * windows: `winget install EclipseAdoptium.Temurin.21.JDK`
 
 # Step 1
 
