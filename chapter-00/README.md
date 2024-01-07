@@ -17,7 +17,7 @@ You have Java installed.
 * the easiest way is to just install it via packet manager - alternatively you can use any distro and use it. Never install "OpenJDK from openjdk.org page" or any "Oracle Java"!
     * debian: `apt install openjdk-17-jdk` or https://adoptium.net/temurin/releases/ for a latest version of Java
     * macos: `brew install openjdk` (this installs the latest version)
-    * windows: `winget install Oracle.JDK.18`
+    * windows: `winget install Oracle.JDK.21`
 
 # Step 1
 
