@@ -333,7 +333,7 @@ Come up with an suggestions for your REST endpoint methods. **It doesn't matter 
 * How to return JSON (response body is JSON) and how to pass JSON into the REST API (request body is JSON)
 * How to use path variables - a variable inside an URL
 
-# Extras if you time
+# Extras if you have time
 
 * Read more about Browser security https://en.wikipedia.org/wiki/Same-origin_policy and https://en.wikipedia.org/wiki/Cross-origin_resource_sharing
 * Read more about Lombok and it's annotations https://projectlombok.org/features/

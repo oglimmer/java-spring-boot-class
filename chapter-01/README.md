@@ -162,7 +162,7 @@ Create a new repo in your github/gitlab account and push your project there.
 * selecting the right dependencies for a spring boot project can be tricky, ask someone who's familiar with spring boot
 * REST is based on http and this can be examined in detail with `curl` on the command line
 
-# Extras if you time
+# Extras if you have time
 
 * read the pom.xml - that's maven's build file. ask yourself if the content makes sense or why it is there
 * to see all the project's dependencies, type:
