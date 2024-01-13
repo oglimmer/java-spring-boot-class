@@ -181,7 +181,24 @@ Before we continue, it should be said that CORS has many more aspects, like you 
 * REST uses JSON as the data format for input and ouput of data
 * Let's add a "status" endpoint which returns status information via JSON.
 
-We add a method and a @GetMapping annotation with the url to our class:
+We start, by creating a DTO for the returned JSON data. Such classes are often also called POJOs (plain old java object) or as I called them: DTOs (data transfer objects), both means it just holds some data, but does not have any methods.
+
+Create a file ServerStatus.java like this:
+
+```java
+import lombok.*;
+
+@Getter // this will generate getters for all attributes
+@Setter // this will generate setter for all attributes
+public class ServerStatus {
+    private long serverTime;
+    private String serverVersion;
+    private String serverName;
+    private String serverStatus;
+}
+```
+
+Now we can add a method to define the endpoint and a @GetMapping annotation with the url to our class:
 
 ```java
 public class ServerStatusController {
@@ -203,24 +220,7 @@ public class ServerStatusController {
 }
 ```
 
-To return JSON we only need to return a Java object. Spring will convert this to JSON by default.
-
-Let's create this class. Create a file ServerStatus.java like this:
-
-```java
-import lombok.*;
-
-@Getter // this will generate getters for all attributes
-@Setter // this will generate setter for all attributes
-public class ServerStatus {
-    private long serverTime;
-    private String serverVersion;
-    private String serverName;
-    private String serverStatus;
-}
-```
-
-Such classes are often call POJOs (plain old java object) or DTOs (data transfer objects), which means it just holds some data, but does not have any methods.
+To return data as JSON we only need to return a Java object. Spring will convert this to JSON by default.
 
 Test the endpoint with a browser http://localhost:8080/api/v1/server/status or `curl http://localhost:8080/api/v1/server/status --verbose`
 
