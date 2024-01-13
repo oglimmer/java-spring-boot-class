@@ -1,10 +1,10 @@
 # Chapter 01
 
-Install java and an IDE/Editor
+Install java, an IDE/Editor and docker
 
 # Goal
 
-You have Java installed.
+You have Java and docker installed.
 
 # Context and Knowledge
 
@@ -18,6 +18,8 @@ You have Java installed.
     * debian: `apt install openjdk-17-jdk` or https://adoptium.net/temurin/releases/ for a latest version of Java
     * macos: `brew install openjdk` (this installs the latest version)
     * windows: `winget install EclipseAdoptium.Temurin.21.JDK`
+* docker makes development in many situations much easier, as it easily provides 3rd party software like webservers or databases
+
 
 # Step 1
 
@@ -39,6 +41,36 @@ javac --version
 
 But nobody uses the javac directly. Nobody. Always use maven or gradle. We'll see this in the next chapter.
 
+# Step 3 
+
+Download docker desktop from https://www.docker.com/products/docker-desktop/ and install it.
+
+Docker is very easy to use and doesn't require any addition configuration.
+
+After installing it, here are first steps you might want to try:
+
+```bash
+# we start a nginx webserver and map port 80 from inside the container to your host
+docker run --rm -p 80:80 nginx
+# now try http://localhost/ in your browser
+```
+
+or
+
+```bash
+# start a clean Ubuntu, install curl and jq, execute an http request to math.oglimmer.com to solve 7*4 and format the resulting JSON nicely
+docker run --rm ubuntu /bin/sh -c 'apt update && apt -y install curl jq && curl "https://math.oglimmer.de/v1/calc?expression=7%2A4" | jq'
+```
+
+or
+
+```bash
+# start a MariaDB database with user=root, passord=root
+docker run --rm -e MARIADB_ROOT_PASSWORD=root -p 3306:3306 mariadb
+# download any MariaDB (or Mysql) Client and access your database at localhost with root/root
+```
+
 # What we've learnt
 
-* some java terminology 
+* some java terminology
+* docker
