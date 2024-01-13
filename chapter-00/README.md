@@ -1,4 +1,4 @@
-# Chapter 01
+# Chapter 00
 
 Install java, an IDE/Editor and docker
 
@@ -58,8 +58,8 @@ docker run --rm -p 80:80 nginx
 or
 
 ```bash
-# start a clean Ubuntu, install curl and jq, execute an http request to math.oglimmer.com to solve 7*4 and format the resulting JSON nicely
-docker run --rm ubuntu /bin/sh -c 'apt update && apt -y install curl jq && curl "https://math.oglimmer.de/v1/calc?expression=7%2A4" | jq'
+# start a container which has curl and jq installed, do an GET http request to math.oglimmer.com to solve 5+7*4 and format the resulting JSON nicely
+docker run --rm apteno/alpine-jq /bin/sh -c 'curl "https://math.oglimmer.de/v1/calc?expression=5+7*4" -s | jq'
 ```
 
 or
