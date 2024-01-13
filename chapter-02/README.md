@@ -129,6 +129,8 @@ document.getElementById('execButton').addEventListener('click', async () => {
 
 Save this html as `test.html` and run `docker run --rm -v $PWD:/usr/share/nginx/html -p 80:80 nginx` in the same directory. Access the page with a browser at http://localhost/test.html
 
+Do replicate the problem you cannot open test.html directly in your browser, you either have to use docker or something like xampp.
+
 Does it work? No? Why?
 
 When you check the dev console (what you should always do in those cases), you see the error message "CORS Missing Allow Origin" in the network tab.
