@@ -236,6 +236,49 @@ Let's keep the consequences in mind:
 * means our `@Bean` (or later `@Service`, `@Component`) classes shares all the attributes with all consumers
 * therefore you must not put any object attributes in such a class
 
+## Step 2b - More OpenAPI documentation
+
+We can also provide information about our endpoints and their data structures to OpenAPI. We provide this information with annotations directly attached to the methods and classes.
+
+This is the createGame method and its DTOs:
+
+```java
+@PostMapping("/")
+public GameResponse createGame(@RequestBody CreateGameRequest createGameRequest) {
+    return new GameResponse();
+}
+```
+
+we can add the OpenAPI information with the following annotations:
+
+```java
+@Operation(
+        summary = "Create a new game with a specific number of players",
+        description = "The number of players must be at least 2. All player names must be different.", responses = {
+        @ApiResponse(
+                responseCode = "200", description = "Game created", content = @Content(
+                mediaType = MediaType.APPLICATION_JSON_VALUE,
+                schema = @Schema(implementation = GameResponse.class)))})
+@PostMapping("/")
+public GameResponse createGame(@RequestBody CreateGameRequest createGameRequest) {
+    return new GameResponse();
+}
+```
+
+We can also add more information on the DTO classes:
+
+```java
+@Schema(description = "Game creation request")
+@Getter @Setter @ToString
+public class CreateGameRequest {
+    @Schema(description = "Defines the participating players. Each player name must be different and at least 2 players have to be provided",
+            example = "[\"john doe\", \"jane doe\"]")
+    private String[] playerNames;
+}
+```
+
+It's always good practice to add those annotiations to all of your REST controller methods and all DTOs. It helps your consumers to understand your API, but it also helps you to think about your API, its use-cases, validations and limitations. You should do it right when you write the REST controller and the DTOs, not after completing the development as an afterthought.
+
 ## Step 3 - Application Layers
 
 Our REST API does everything in memory, so we don't have anything in the persistence layer.
