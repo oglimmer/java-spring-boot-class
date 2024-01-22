@@ -147,6 +147,7 @@ Create a new file Beans.java:
 // add your package
 
 import io.swagger.v3.oas.models.*;
+import io.swagger.v3.oas.models.info.*;
 import org.springframework.context.annotation.*;
 
 // this annotation tells Spring to look for @Bean inside this class
