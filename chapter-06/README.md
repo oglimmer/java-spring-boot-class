@@ -462,11 +462,98 @@ logging.level.org.hibernate.SQL=DEBUG
 logging.level.org.hibernate.orm.jdbc.bind=TRACE
 ```
 
+# Step 7 - Spring actuator
+
+Remember chapter 2 where we implemented a "server status" endpoint? This is actually needless work, as Spring comes with a similar functionality out of the box. We just have to add a dependency to `pom.xml`:
+
+```xml
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-actuator</artifactId>
+</dependency>
+```
+
+Without more configuration you can access the a health endpoint at http://localhost:8080/actuator/health. We can use this endpoint to check the health in a docker compose file.
+
+# Step 8 - Extending docker compose for db backend
+
+Adding the db backend is as simple as adding this to our docker compose file:
+
+```yml
+version: '3'
+
+services:
+  db:
+    image: postgres
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_DB: postgres
+  backend:
+    environment:
+      DB_HOST: db
+    # other backend attribues ...
+
+# ... frontend ...
+```
+
+We use an environment variable to change the DB host from the default "localhost" to "db" - which is the service name and therefore also the DNS name of the database container. Using a variable `DB_HOST` works as we used `spring.datasource.url=jdbc:postgresql://${DB_HOST:localhost}/postgres` in `application.properties`.
+
+Still, an issue arises because the database takes a few seconds to start up, and it's highly likely that our Spring application starts faster, leading to a failure on startup. Therefore, Docker needs to wait for the Spring application to start only after Postgres is up and ready.
+
+We can also add a health check on the backend as the frontend should only be available to users, when the backend is ready. Adding these dependencies in docker compose works like this:
+
+```yml
+version: '3'
+
+services:
+  db:
+    image: postgres
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_DB: postgres
+    volumes:
+      - ./data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready --user postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+  backend:
+    # change kniffel-server to match your directory name of the spring REST api
+    build: ./kniffel-server
+    ports:
+      - 8080:8080
+    environment:
+      DB_HOST: db
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "http://localhost:8080/actuator/health"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+  frontend:
+    # change kniffel-client to match your directory name of the vue client
+    build: ./kniffel-client
+    ports:
+      - 80:80
+    depends_on:
+      backend:
+        condition: service_healthy
+```
+
 # What we've learnt
 
 * What is an ORM and how to use it
 * How to add Postgres to a Spring application
 * How to use logging and what logging levels are in Spring + Lombok
+* You have seen how Spring Actuator provides a health check endpoint without any code
+* How docker compose dependencies can use health checks
 * Spring / JPA annotiation
     * @Entity
     * @Id
@@ -488,3 +575,4 @@ logging.level.org.hibernate.orm.jdbc.bind=TRACE
 * Read the Spring docu about Data JPA https://spring.io/projects/spring-data/
 * Read more about JPA and Hibernate: https://en.wikipedia.org/wiki/Jakarta_Persistence and https://hibernate.org/
 * Read more about logging with Slf4j https://www.slf4j.org/manual.html
+* Read more about Actuator https://www.baeldung.com/spring-boot-actuators
