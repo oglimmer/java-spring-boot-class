@@ -402,7 +402,7 @@ We don't go into the details, but those annotations and the setup methods, will 
 
 We needed to make many changes to add the Postgres database backend to our REST API.
 
-To focus on the important conceptional changes, I haven't shown here the changes to move the logic from https://github.com/oglimmer/kniffel-rules-lib into this project. By taking a look at the kniffel-rules-lib you should still be able to reproduce the and complete the changes.
+To focus on the important conceptional changes, I haven't shown here the changes to move the logic from https://github.com/oglimmer/kniffel-rules-lib into this project. By taking a look at the kniffel-rules-lib you should still be able to reproduce this chapter and complete the gaps by yourself.
 
 But if you struggle to assemple everything together and make it work, you find the final result here https://github.com/oglimmer/java-spring-boot-class-sources/tree/main/chapter06/kniffel-server
 
