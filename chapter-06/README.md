@@ -1,6 +1,6 @@
 # Chapter 04
 
-Database backend
+Database backend with Postgres
 
 # Goal
 
