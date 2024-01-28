@@ -1,4 +1,4 @@
-# Chapter 04
+# Chapter 06
 
 Database backend with Postgres
 
