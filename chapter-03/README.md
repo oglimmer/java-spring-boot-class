@@ -175,6 +175,8 @@ Here we see the usage of an important concept "Dependency Injection".
 
 The idea of "Dependency Injection" (DI) is to de-couple places where code needs an object and the code which provides this object.
 
+We don't use the code from this step, all code in this section is for demonstration purposes only.
+
 In our case from above the Swagger code needs an object for [`OpenAPI`](https://github.com/swagger-api/swagger-core/blob/master/modules/swagger-models/src/main/java/io/swagger/v3/oas/models/OpenAPI.java).
 
 The internal Swagger code use this code to create an `OpenAPI` object:
@@ -237,7 +239,7 @@ Let's keep the consequences in mind:
 * means our `@Bean` (or later `@Service`, `@Component`) classes shares all the attributes with all consumers
 * therefore you must not put any object attributes in such a class
 
-## Step 2b - More OpenAPI documentation
+## Step 3 - More OpenAPI documentation
 
 We can also provide information about our endpoints and their data structures to OpenAPI. We provide this information with annotations directly attached to the methods and classes.
 
@@ -280,7 +282,7 @@ public class CreateGameRequest {
 
 It's always good practice to add those annotiations to all of your REST controller methods and all DTOs. It helps your consumers to understand your API, but it also helps you to think about your API, its use-cases, validations and limitations. You should do it right when you write the REST controller and the DTOs, not after completing the development as an afterthought.
 
-## Step 3 - Application Layers
+## Step 4 - Application Layers
 
 Our REST API does everything in memory, so we don't have anything in the persistence layer.
 
@@ -325,7 +327,7 @@ public class GameController {
 
 Now the only problem we have left, is a compiler error for `KniffelGame`.
 
-## Step 4 - Game Logic - `class KniffelGame`
+## Step 5 - Game Logic - `class KniffelGame`
 
 As this is a tutorial for Spring REST API and not for Java coding, so I leave you with three options for the actual game logic:
 
@@ -484,7 +486,7 @@ public GameResponse createGame(@RequestBody CreateGameRequest createGameRequest)
 
 So we need to copy all attributes from KniffelGame into GameResponse. You can do this by yourself and just use all the getters on KniffelGame to call all the setters on GameResponse. But usually people use a "mapping library" and one popular library is "ModelMapper".
 
-## Step 4 - Mapping data with lib `ModelMapper`
+## Step 6 - Mapping data with lib `ModelMapper`
 
 In theory you could use the internal logic classes and expose them via REST API endpoints, but that's a very bad idea. You would expose all of your data to clients, also any change inside your logic could change the data structure for clients. Therefore it is good practise to have dedicated DTOs for input/output of REST APIs and of course a mapping between them.
 
@@ -540,7 +542,7 @@ Use this method to convert a KniffelGame object into a GameResponse object in `c
 
 At this point we have a working REST API to create a game of Kniffel.
 
-## Step 5 - Complete the other endpoints
+## Step 7 - Complete the other endpoints
 
 The `GameService` class should look like this:
 
