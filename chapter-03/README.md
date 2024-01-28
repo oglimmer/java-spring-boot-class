@@ -363,7 +363,7 @@ Then add this dependency:
 
 You can always add dependencies from the default repository, but my kniffel rule lib is not available there and you need to add my custom repository.
 
-Now we can use the class `KniffelGame`, which implements Kniffel, into our `GameService`:
+Now we can use the class `KniffelGame`, which implements Kniffel, into our `GameService`. If you want to have a look at the source code, you can find it here https://github.com/oglimmer/kniffel-rules-lib/.
 
 ### Option 2 - implement your own score calculation (optional)
 
