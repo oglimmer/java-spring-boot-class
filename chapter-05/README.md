@@ -9,7 +9,7 @@ We want to use appropriate http status codes and validate input parameters prope
 # Context and Knowledge
 
 * REST APIs should use the http status codes where possible. Here is a list of selected, useful return codes:
-    * 200, OK -> the operation succeeded
+    * 200, OK -> the operation succeeded (every Spring REST method returns 200 by default)
     * 201, CREATED -> the operation (usually a POST) created something
     * 204, NO CONTENT -> while the operation succeeded, there is not content in the response
     * 400, BAD REQUEST -> the parameter provided where wrong, missing or cannot be decoded
