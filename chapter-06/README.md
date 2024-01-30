@@ -547,6 +547,96 @@ services:
         condition: service_healthy
 ```
 
+# Step 9 - Deploying (the Vue UI) to production
+
+There is one thing our Vue UI is missing before we can deploy it to production: we have hard-coded the REST server base URL to http://localhost:8080
+
+First we need to introduce a variable and use this variable everwhere we have previously hard-coded the URL:
+
+```vue
+<script>
+// make URL of the backend server configurable via build-time environment variable
+const SERVER_BASE = `${__API_URL__}`;
+
+// ...
+
+const response = await fetch(`${SERVER_BASE}/api/v1/game/`, { ... }
+
+// do this everywhere in App.vue
+
+</script>
+```
+
+Now we need introduce the global variable `__API_URL__`. To introduce its type we open `env.d.ts` and put this into it:
+
+```ts
+///  <reference types="vite/client" />
+
+// define API_URL as a global string variable
+declare const __API_URL__: string;
+```
+
+We want to be able to set this variable at build time from an environment variable. This enables use to create a docker image serving static files from nginx with a configurable REST API domain. 
+
+Open `vite.config.ts` and use this:
+
+```ts
+import { fileURLToPath, URL } from 'node:url'
+
+import { defineConfig } from 'vite'
+import vue from '@vitejs/plugin-vue'
+
+// https://vitejs.dev/config/
+export default defineConfig({
+  define: {
+    // in dev mode : __API_URL__ is set to "http://localhost:8080"
+    // in prod mode : __API_URL__ will be statically replaced by the value of process.env.API_URL at build time!
+    __API_URL__: JSON.stringify(process.env.API_URL ?? "http://localhost:8080")
+  },
+  plugins: [
+    vue(),
+  ],
+  resolve: {
+    alias: {
+      '@': fileURLToPath(new URL('./src', import.meta.url))
+    }
+  }
+})
+```
+
+We still use http://localhost:8080 if no other configuration is found, but we can set an environment variable for build time. Let's do that and change our Dockerfile to accept `API_URL`:
+
+```Dockerfile
+# again we start with a base image matching our needs. in this case nodejs
+FROM node:18 as builder
+
+# make REST API URL configurable via environment variable
+ARG API_URL
+
+# copy "context root" into /opt/frontend
+COPY . /opt/frontend
+
+# install the npm dependencies and build static html/css/js files
+RUN cd /opt/frontend && \
+    npm ci && \
+    npm run build
+
+# start over again, this time use a nginx tiny image to serve our static files
+FROM nginx:stable-alpine
+
+# copy the output from the first stage
+COPY --from=builder /opt/frontend/dist /usr/share/nginx/html
+
+# this is informative only, it tells docker which port this image exposes
+EXPOSE 80
+```
+
+now we could create a docker image using a REST API server at api-kniffel.oglimmer.com
+
+```bash
+docker build --tag kniffel-frontend --build-arg API_URL=https://api-kniffel.oglimmer.com .
+```
+
 # What we've learnt
 
 * What is an ORM and how to use it
@@ -554,6 +644,7 @@ services:
 * How to use logging and what logging levels are in Spring + Lombok
 * You have seen how Spring Actuator provides a health check endpoint without any code
 * How docker compose dependencies can use health checks
+* Build time variables in Vue
 * Spring / JPA annotiation
     * @Entity
     * @Id
