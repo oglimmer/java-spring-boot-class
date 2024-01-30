@@ -59,7 +59,7 @@ or
 
 ```bash
 # start a container which has curl and jq installed, do an GET http request to math.oglimmer.com to solve 5+7*4 and format the resulting JSON nicely
-docker run --rm apteno/alpine-jq /bin/sh -c 'curl "https://math.oglimmer.de/v1/calc?expression=5+7*4" -s | jq'
+docker run --rm apteno/alpine-jq /bin/sh -c "curl 'https://math.oglimmer.de/v1/calc?expression=5+7*4' -s | jq"
 ```
 
 or

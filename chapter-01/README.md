@@ -106,7 +106,7 @@ this is easy, but you won't have a debugger attached, so I would not recommend i
 ./mvnw spring-boot:run
 
 # or on windows
-./mvnw.bat spring-boot:run
+mvnw spring-boot:run
 ```
 
 ### After started ....
@@ -184,7 +184,10 @@ This will create a "release package" as a jar in ./target. See target//kniffel-0
 You can start with via
 
 ```bash
-java -jar target//kniffel-0.0.1-SNAPSHOT.jar
+java -jar target/kniffel-0.0.1-SNAPSHOT.jar
+
+# or on windows
+java -jar target\kniffel-0.0.1-SNAPSHOT.jar
 ````
 
 That's the file you would put into a docker container to deploy it to production. Feel free to write a Dockerfile/docker-compose.yml to start the REST API as a container.

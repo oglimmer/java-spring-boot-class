@@ -127,7 +127,16 @@ document.getElementById('execButton').addEventListener('click', async () => {
 </html>
 ```
 
-Save this html as `test.html` and run `docker run --rm -v $PWD:/usr/share/nginx/html -p 80:80 nginx` in the same directory. Access the page with a browser at http://localhost/test.html
+Save this html as `test.html` and run 
+
+```bash
+docker run --rm -v $PWD:/usr/share/nginx/html -p 80:80 nginx
+
+# on windows
+docker run --rm -v %cd%:/usr/share/nginx/html -p 80:80 nginx
+```
+
+in the same directory. Access the page with a browser at http://localhost/test.html
 
 To replicate the problem you cannot open test.html directly in your browser, you either have to use docker or something like xampp.
 
@@ -264,7 +273,7 @@ public class CreateGameRequest {
 You can test this via terminal:
 
 ```bash
-curl http://localhost:8080/api/v1/game/ --request POST --data-ascii '{"playerNames": ["oli", "ilo"]}' --header "Content-Type: application/json" --verbose
+curl http://localhost:8080/api/v1/game/ --request POST --data-ascii "{\"playerNames\": [\"oli\", \"ilo\"]}" --header "Content-Type: application/json" --verbose
 ```
 
 As we send a request body (`--data-ascii` defines the request body), we need to let Spring know what data format is used in the body, we do this via the header `Content-Type: application/json`.
