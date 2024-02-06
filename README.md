@@ -19,3 +19,4 @@ You need basic programming skills in any language, not necessarily in Java.
 | 04  | Web and CLI Clients | [chapter-04](chapter-04)  |
 | 05  | Testing, http status codes and defensive code | [chapter-05](chapter-05)  |
 | 06  | Database backend with Postgres | [chapter-06](chapter-06)  |
+| 07  | Epilog: more ideas | [chapter-07](chapter-07)  |
