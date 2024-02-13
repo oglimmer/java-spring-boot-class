@@ -312,11 +312,17 @@ This should result in output like this:
 
 As you see 3 tests have been executed and no errors occurred.
 
-# Step 5 - Component tests
+# Step 5 - Component and integration tests
 
-Before we start, let me say that some people call this type an integration test. I prefer component test, as it only tests this endpoint, this one component. I use integration test, if your test code tests any sort of integration, what means more than one component.
+Component and integration tests have in common that they test functionality beyond a method or a single class.
 
-Create a file `GameEndpointTest.java` and put this content into it:
+This ensures that functionality works as expected on a higher, broader level, but that either needs a lot of mocking or you need to provide the complete server runtime, as well as required down- or upstream components (like databases).
+
+In our case we need the fully initialized Spring runtime.
+
+It is also worth to mention that in Maven component and integration tests have some additional requirements. First they are separated into the `verify` phase of Maven. Also classes providing unit tests have to end with Test, where component and integration tests have to end with IT.
+
+Create a file `GameEndpointIT.java` and put this content into it:
 
 ```java
 import com.oglimmer.kniffel.web.dto.*;
@@ -331,7 +337,7 @@ import java.util.Arrays;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
-public class GameEndpointTest {
+public class GameEndpointIT {
 
     @LocalServerPort
     private int port;
@@ -412,13 +418,38 @@ String gameId = gameResponse.getBody().getGameId();
 assertThat(gameId).isEqualTo(gameService.getGameInfo(gameId).getGameId());
 ```
 
-You can run the test again
+We also need to enable integration tests in our `pom.xml`. Find the right place and put this into it:
 
-```bash
-./mvnw test
+```xml
+	<build>
+		<plugins>
+            <!-- keep the other plugin for spring-boot-maven-plugin -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-failsafe-plugin</artifactId>
+				<version>3.2.5</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>integration-test</goal>
+							<goal>verify</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
 ```
 
-This will always run all tests, so it runs our unit tests for the rules and it runs the new component tests for the create game endpoint. This is also integrated into the maven lifecycle. So whenever we create a production package via `./mvnw package` the tests are executed as well.
+You can run the component / integration tests via:
+
+```bash
+./mvnw verify
+```
+
+This will always run all tests, as the `verify` goal is at the end of Maven's life cycles and thus `verify` also executes `test`. As we see our unit tests for the rules run, as well as our new component tests for the create game endpoint run. 
+
+Whenever we create a production package we use `./mvnw verify` to execute all of our tests and create the jar.
 
 # Step 6 - Containerization of our backend and frontend
 
@@ -439,8 +470,8 @@ WORKDIR /opt/build
 # for us "context root" is the base of this project
 COPY . .
 
-# execute mvn package
-RUN ./mvnw package
+# execute mvn verify
+RUN ./mvnw verify
 
 # we start over again, as we only want to run java, we don't need a
 # jdk anymore, use a tiny jre instead
