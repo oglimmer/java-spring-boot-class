@@ -602,3 +602,4 @@ docker compose down
 
 * read about all http status codes https://developer.mozilla.org/en-US/docs/Web/HTTP/Status
 * read about Null safety for Kotlin https://kotlinlang.org/docs/null-safety.html
+* read more about the Maven lifecycle https://maven.apache.org/guides/introduction/introduction-to-the-lifecycle.html
