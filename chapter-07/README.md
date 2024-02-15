@@ -59,4 +59,4 @@ Implement:
 * change the Vue application to support game creation, waiting game list, join game
 * change the Vue application to connect to the websocket after joining a game and on receive event execute the related REST call
 
-Again this is a hard change and requires a certain level of coding experience.
+Again this is a difficult change and requires a certain level of coding experience.
