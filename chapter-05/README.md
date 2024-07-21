@@ -34,7 +34,7 @@ An endpoint which creates an entity should return 201 not 200. Let's open `GameC
                 schema = @Schema(implementation = GameResponse.class)))})
 @ResponseStatus(HttpStatus.CREATED)
 @PostMapping("/")
-public GameResponse createGame(@RequestBody CreateGameRequest createGameRequest) {
+public @NonNull GameResponse createGame(@RequestBody CreateGameRequest createGameRequest) {
     KniffelGame game = gameService.createGame(createGameRequest.getPlayerNames());
     return mapGameResponse(game);
 }
@@ -65,7 +65,7 @@ Checking for the 2 conditions could look like this:
                 schema = @Schema(implementation = GameResponse.class)))})
 @ResponseStatus(HttpStatus.CREATED)
 @PostMapping("/")
-public GameResponse createGame(@RequestBody CreateGameRequest createGameRequest) {
+public @NonNull GameResponse createGame(@RequestBody CreateGameRequest createGameRequest) {
     if (createGameRequest == null || createGameRequest.getPlayerNames() == null || createGameRequest.getPlayerNames().length < 2) {
         throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "At least 2 players have to be provided");
     }

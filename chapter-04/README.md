@@ -62,26 +62,26 @@ public class GameController {
     private ModelMapper modelMapper;
 
     @PostMapping("/")
-    public GameResponse createGame(@RequestBody CreateGameRequest createGameRequest) {
+    public @NonNull GameResponse createGame(@RequestBody CreateGameRequest createGameRequest) {
         KniffelGame game = gameService.createGame(createGameRequest.getPlayerNames());
         return mapGameResponse(game);
     }
 
     @GetMapping("/{gameId}")
-    public GameResponse getGameInfo(@PathVariable String gameId) {
+    public @NonNull GameResponse getGameInfo(@PathVariable String gameId) {
         KniffelGame game = gameService.getGameInfo(gameId);
         return mapGameResponse(game);
     }
 
     @PostMapping("/{gameId}/roll")
-    public GameResponse roll(@PathVariable String gameId, @RequestBody DiceRollRequest diceRollRequest) {
+    public @NonNull GameResponse roll(@PathVariable String gameId, @RequestBody DiceRollRequest diceRollRequest) {
         KniffelGame kniffelGame = gameService.getGameInfo(gameId);
         gameService.roll(kniffelGame, diceRollRequest.getDiceToKeep());
         return mapGameResponse(kniffelGame);
     }
 
     @PostMapping("/{gameId}/book")
-    public GameResponse book(@PathVariable String gameId, @RequestBody BookRollRequest bookRollRequest) {
+    public @NonNull GameResponse book(@PathVariable String gameId, @RequestBody BookRollRequest bookRollRequest) {
         KniffelGame kniffelGame = gameService.getGameInfo(gameId);
         BookingType enumBookingType = BookingType.valueOf(bookRollRequest.getBookingType());
         gameService.bookRoll(kniffelGame, enumBookingType);
@@ -311,6 +311,31 @@ npm run dev # this starts vue for development with a test webserver running on 5
 
 Access the project at http://localhost:5173 - you should see a template project using Vue.
 
+## Creating the http helper classes
+
+As we have a Swagger/OpenAPI specification for our REST API, we don't have to write the TypeScript code for that manually. We can generate this TypeScript code based on the Swagger/OpenAPI specification.
+
+We need to install a generator tool called "openapi-typescript" and its runtime "openapi-fetch":
+
+```bash
+npm i openapi-fetch
+npm i --save-dev openapi-typescript
+```
+
+Now we can generate the code. 
+
+*IMPORTANT*: 
+First we have to make sure that our REST API - the Spring application - is started.
+
+Now we download the OpenAPI specification as json and save it to `api.json`. Then we run the code generator to create TypeScript code based on the api.json file.
+
+```bash
+curl "http://localhost:8080/v3/api-docs" > api.json
+npx openapi-typescript api.json -o ./src/api/v1.d.ts
+```
+
+If you look into `./src/api/v1.d.ts` you will find all types and all code to call the http endpoints.
+
 ## Create game
 
 We are not looking all details of a Vue / npm / nodejs programming, as this needs its own tutorial. Let's focus on the chances we need to do, to make this project a Kniffel REST API client.
@@ -321,8 +346,16 @@ Let's start with "create game" funtionality:
 
 ```vue
 <script setup lang="ts">
-// import a function from the vue framework
-import { ref } from 'vue'; 
+// import a function from the vue framework and the openapi-fetch runtime plus generated classes
+import { ref } from 'vue'
+import type { Ref } from 'vue'
+import createClient from 'openapi-fetch';
+import type { components, paths } from '@/api/v1';
+
+// this creates an http client for our REST api. If you don't use generated code to access the
+// REST API, you would use fetch API (https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API)
+// for this tutorial - and I would recommend it anyway - we use this client instead of fetch
+const client = createClient<paths>({ baseUrl: "http://localhost:8080" });
 
 // define the interface to hold the player name
 interface PlayerInformation {
@@ -337,28 +370,14 @@ const names = ref<PlayerInformation[]>([
     {index: 0, name: ''}, 
     {index: 1, name: ''}
 ]);
-// a function to call the REST API
+// a function to call the REST API using the generated code
 async function createGame() {
-    try {
-        const response = await fetch('http://localhost:8080/api/v1/game/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                // this converts the PlayerInformation data structure into a simple array
-                playerNames: names.value.map(n => n.name)
-            })
-        });
-        if (response.status > 299) {
-            alert('Error creating game');
-            return;
+    const { data } = await client.POST("/api/v1/game/", {
+        body: {
+            playerNames: names.value.map(n => n.name)
         }
-        const responseJson = await response.json();
-        alert(JSON.stringify(responseJson));
-    } catch (e) {
-        alert('Error creating game : ' + JSON.stringify(e));
-    }
+    });
+    alert(data);
 }
 </script>
 
@@ -384,51 +403,27 @@ We need to define more data interfaces to use the response of the create game RE
 
 ```vue
 <script setup lang="ts">
+// keep everything else in <script>
 
-// add after the other interface defintion. This is the data structure of our REST endpoints
-interface PlayerData {
-    name: string;
-    score: number;
-}
-interface GameData {
-    gameId: string;
-    currentPlayerName: string;
-    playerData: PlayerData[];
-    state: string;
-    rollRound: number;
-    diceRolls: number[];
-    availableBookingTypes: string[];
-    usedBookingTypes: string[];
-}
-
-// this variable will store the game information
-// we use "empty" defaults for all the data attributes
-const gameData = ref<GameData>({ 
-    gameId: '', 
-    currentPlayerName: '', 
-    playerData: [], 
-    state: '', 
-    rollRound: 0, 
-    diceRolls: [], 
-    availableBookingTypes: [], 
-    usedBookingTypes: []
-});
+// this defines a variable to hold the loaded GameData using a type from the generated code
+// while the data coming from the REST API cannot be undefined, the variable gameData is
+// undefined right after initialization and before the REST call comes back
+const gameData : Ref<components["schemas"]["GameResponse"] | undefined> = ref();
 
 // look for this method and change it
 async function createGame() {
-    try {
-        // keep what did here
-        // we only change the result processing to this:
-        const responseJson = await response.json(); // keep this
-        gameData.value = responseJson; // change this
-    } catch (e) {
-        alert('Error creating game : ' + JSON.stringify(e));
-    }
+    const { data } = await client.POST("/api/v1/game/", {
+        body: {
+            playerNames: names.value.map(n => n.name)
+        }
+    });
+    // after loading the data, we store it
+    gameData.value = data;
 }
 </script>
 <!-- replace everything from here on -->
 <template>
-    <div v-if="!gameData.gameId">
+    <div v-if="!gameData?.gameId">
         <h1>Player Names</h1>
         <form>
             <ul>
@@ -440,7 +435,7 @@ async function createGame() {
         <button @click="names.push({index: names.length, name: ''})">Add Name</button> &nbsp;
         <button @click="createGame">Create Game</button>
     </div>
-    <div v-if="gameData.gameId">
+    <div v-if="gameData?.gameId">
         <h1>Game Scores</h1>
         <ul>
             <li v-for="ply in gameData.playerData" :key="ply.name">
@@ -451,7 +446,7 @@ async function createGame() {
             Current player: {{ gameData.currentPlayerName }}
         </h1>
     </div>
-    <div v-if="gameData.state === 'ROLL'">
+    <div v-if="gameData?.state === 'ROLL'">
         <h3>Roll round: {{ gameData.rollRound }}</h3>
         <h3 style="margin-top: 30px;">Select the dice to keep:</h3>
           <ul>
@@ -481,46 +476,45 @@ async function reroll() {
     // we need to pass the dice values to the REST API, but we store only the keep/reroll boolean
     // information per dice. so this converts the yes/no to dice values to keep
     const diceToKeep : number[] = [];
-    for (let i = 0; i < gameData.value.diceRolls.length; i++) {
-        // simple logic: if the user checked the box for "keep it",
-        // we have to push the value to an array
-        if (rerollSelection.value[i]) {
-            diceToKeep.push(gameData.value.diceRolls[i]);
+    if (gameData.value) {
+        for (let i = 0; i < gameData.value.diceRolls.length; i++) {
+            // simple logic: if the user checked the box for "keep it",
+            // we have to push the value to an array
+            if (rerollSelection.value[i]) {
+                diceToKeep.push(gameData.value.diceRolls[i]);
+            }
         }
-    }
-    try {
-        const response = await fetch(`http://localhost:8080/api/v1/game/${gameData.value.gameId}/roll`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
+        const { data } = await client.POST("/api/v1/game/{gameId}/roll", {
+            params: {
+                path: {
+                    gameId: gameData.value.gameId
+                }
             },
-            body: JSON.stringify({diceToKeep})
+            body: {
+                diceToKeep
+            }
         });
-        if (response.status !== 200) {
-            alert('Error creating game');
-            return;
-        }
-        gameData.value = await response.json();
+        gameData.value = data;
         // the result contains only the dice values, but we need to keep the checkboxes on
         // the dice values the user kept in the last round, so we have to look for
         // dice values the users checked and re-check it
-        for (let i = 0; i < gameData.value.diceRolls.length; i++) {
-            const idxToKeep = diceToKeep.indexOf(gameData.value.diceRolls[i]);
-            if (idxToKeep === -1) {
-                rerollSelection.value[i] = false;
-            } else {
-                rerollSelection.value[i] = true;
-                diceToKeep.splice(idxToKeep, 1);
+        if (gameData.value) {
+            for (let i = 0; i < gameData.value.diceRolls.length; i++) {
+                const idxToKeep = diceToKeep.indexOf(gameData.value.diceRolls[i]);
+                if (idxToKeep === -1) {
+                    rerollSelection.value[i] = false;
+                } else {
+                    rerollSelection.value[i] = true;
+                    diceToKeep.splice(idxToKeep, 1);
+                }
             }
         }
-    } catch (e) {
-        alert('Error rerolling dice : ' + JSON.stringify(e));
     }
 }
 </script>
 <!-- replace everything from here on -->
 <template>
-    <div v-if="!gameData.gameId">
+    <div v-if="!gameData?.gameId">
         <h1>Player Names</h1>
         <form>
             <ul>
@@ -532,7 +526,7 @@ async function reroll() {
         <button @click="names.push({index: names.length, name: ''})">Add Name</button> &nbsp;
         <button @click="createGame">Create Game</button>
     </div>
-    <div v-if="gameData.gameId">
+    <div v-if="gameData?.gameId">
         <h1>Game Scores</h1>
         <ul>
             <li v-for="ply in gameData.playerData" :key="ply.name">
@@ -543,7 +537,7 @@ async function reroll() {
             Current player: {{ gameData.currentPlayerName }}
         </h1>
     </div>
-    <div v-if="gameData.state === 'ROLL'">
+    <div v-if="gameData?.state === 'ROLL'">
         <h3>Roll round: {{ gameData.rollRound }}</h3>
         <div> These types are still available:
             {{ gameData.availableBookingTypes }}
@@ -567,116 +561,89 @@ You can replace everything with this content.
 
 ```vue
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref } from 'vue'
+import type { Ref } from 'vue'
+import createClient from 'openapi-fetch';
+import type { components, paths } from '@/api/v1';
+
+const client = createClient<paths>({ baseUrl: "http://localhost:8080" });
 
 interface PlayerInformation {
     index: number;
     name: string;
 }
 
-interface PlayerData {
-    name: string;
-    score: number;
-}
-
-interface GameData {
-    gameId: string;
-    currentPlayerName: string;
-    playerData: PlayerData[];
-    state: string;
-    rollRound: number;
-    diceRolls: number[];
-    availableBookingTypes: string[];
-    usedBookingTypes: string[];
-}
-
-const names = ref<PlayerInformation[]>([{index: 0, name: ''}, {index: 1, name: ''}]);
-const gameData = ref<GameData>({ gameId: '', currentPlayerName: '', playerData: [], state: '', rollRound: 0, diceRolls: [], availableBookingTypes: [], usedBookingTypes: []});
+const names : Ref<PlayerInformation[]> = ref([{index: 0, name: ''}, {index: 1, name: ''}]);
+const gameData : Ref<components["schemas"]["GameResponse"]|undefined> = ref();
 const rerollSelection = ref([false, false, false, false, false]);
 // the booking type selected in the dropdown box
-const selectedBookingType = ref('');
+const selectedBookingType : Ref<components["schemas"]["GameResponse"]["usedBookingTypes"]|undefined> = ref();
 
 async function createGame() {
-    try {
-        const response = await fetch('http://localhost:8080/api/v1/game/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                playerNames: names.value.map(n => n.name)
-            })
-        });
-        if (response.status > 299) {
-            alert('Error creating game');
-            return;
+    const { data } = await client.POST("/api/v1/game/", {
+        body: {
+            playerNames: names.value.map(n => n.name)
         }
-        gameData.value = await response.json();
-    } catch (e) {
-        alert('Error creating game : ' + JSON.stringify(e));
-    }
+    });
+    gameData.value = data;
 }
 
 async function reroll() {
     const diceToKeep : number[] = [];
-    for (let i = 0; i < gameData.value.diceRolls.length; i++) {
-        if (rerollSelection.value[i]) {
-            diceToKeep.push(gameData.value.diceRolls[i]);
-        }
-    }
-    try {
-        const response = await fetch(`http://localhost:8080/api/v1/game/${gameData.value.gameId}/roll`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({diceToKeep})
-        });
-        if (response.status !== 200) {
-            alert('Error creating game');
-            return;
-        }
-        gameData.value = await response.json();
-        selectedBookingType.value = '';
+    if (gameData.value) {
         for (let i = 0; i < gameData.value.diceRolls.length; i++) {
-            const idxToKeep = diceToKeep.indexOf(gameData.value.diceRolls[i]);
-            if (idxToKeep === -1) {
-                rerollSelection.value[i] = false;
-            } else {
-                rerollSelection.value[i] = true;
-                diceToKeep.splice(idxToKeep, 1);
+            if (rerollSelection.value[i]) {
+                diceToKeep.push(gameData.value.diceRolls[i]);
             }
         }
-    } catch (e) {
-        alert('Error rerolling dice : ' + JSON.stringify(e));
+        const { data } = await client.POST("/api/v1/game/{gameId}/roll", {
+            params: {
+                path: {
+                    gameId: gameData.value.gameId
+                }
+            },
+            body: {
+                diceToKeep
+            }
+        });
+        gameData.value = data;
+        selectedBookingType.value = undefined;
+        if (gameData.value) {
+            for (let i = 0; i < gameData.value.diceRolls.length; i++) {
+                const idxToKeep = diceToKeep.indexOf(gameData.value.diceRolls[i]);
+                if (idxToKeep === -1) {
+                    rerollSelection.value[i] = false;
+                } else {
+                    rerollSelection.value[i] = true;
+                    diceToKeep.splice(idxToKeep, 1);
+                }
+            }
+        }
     }
 }
 
 // simple REST API call to send the booking type
 async function book() {
-    try {
-        const response = await fetch(`http://localhost:8080/api/v1/game/${gameData.value.gameId}/book`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({bookingType: selectedBookingType.value})
-        });
-        if (response.status !== 200) {
-            alert('Error creating game');
-            return;
+  if (gameData.value) {
+    const { data } = await client.POST("/api/v1/game/{gameId}/book", {
+      params: {
+        path: {
+          gameId: gameData.value.gameId
         }
-        gameData.value = await response.json();
-        rerollSelection.value = [false, false, false, false, false];
-    } catch (e) {
-        alert('Error selecting booking category : ' + JSON.stringify(e));
-    }
+      },
+      body: {
+        bookingType: selectedBookingType.value
+      }
+    });
+    gameData.value = data;
+    rerollSelection.value = [false, false, false, false, false];
+  }
 }
 
 </script>
 
 <template>
-    <div v-if="!gameData.gameId">
+    <div v-if="!gameData?.gameId">
         <h1>Player Names</h1>
         <form>
             <ul>
@@ -688,10 +655,10 @@ async function book() {
         <button @click="names.push({index: names.length, name: ''})">Add Name</button> &nbsp;
         <button @click="createGame">Create Game</button>
     </div>
-    <div v-if="gameData.gameId">
+    <div v-if="gameData?.gameId">
         <h1>Game Scores</h1>
         <ul>
-            <li v-for="ply in gameData.playerData" :key="ply.name">
+            <li v-for="ply in gameData?.playerData" :key="ply.name">
                 Player {{ ply.name }} - Score: {{ ply.score }}
             </li>
         </ul>
@@ -699,10 +666,10 @@ async function book() {
             Current player: {{ gameData.currentPlayerName }}
         </h1>
     </div>
-    <div v-if="gameData.state === 'ROLL'">
-        <h3>Roll round: {{ gameData.rollRound }}</h3>
+    <div v-if="gameData?.state === 'ROLL'">
+        <h3>Roll round: {{ gameData?.rollRound }}</h3>
         <div> These types are still available:
-            {{ gameData.availableBookingTypes }}
+            {{ gameData?.availableBookingTypes }}
         </div>
         <h3 style="margin-top: 30px;">Select the dice to keep:</h3>
           <ul>
@@ -712,7 +679,7 @@ async function book() {
           </ul>
         <button @click="reroll">Roll</button>
     </div>
-    <div v-if="gameData.state === 'BOOK'">
+    <div v-if="gameData?.state === 'BOOK'">
         <h1>Final dice rolls: {{  gameData.diceRolls }}</h1>
         <div class="mt-20">
           Select the booking type:

@@ -555,15 +555,11 @@ First we need to introduce a variable and use this variable everwhere we have pr
 
 ```vue
 <script>
-// make URL of the backend server configurable via build-time environment variable
-const SERVER_BASE = `${__API_URL__}`;
-
-// ...
-
-const response = await fetch(`${SERVER_BASE}/api/v1/game/`, { ... }
-
-// do this everywhere in App.vue
-
+// change this:
+// const client = createClient<paths>({ baseUrl: "http://localhost:8080" });
+// to this, to make URL of the backend server configurable via build-time environment variable
+const client = createClient<paths>({ baseUrl: `${__API_URL__}` });
+// ... rest of the file
 </script>
 ```
 

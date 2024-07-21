@@ -119,13 +119,17 @@ REST APIs are often provided by team A and used by team B - even outside the com
 
 There is a standard for documenting REST APIs : [OpenAPI](https://spec.openapis.org/oas/latest.html). A company called SmartBear provides a software called Swagger, a web ui for OpenAPI documentation.
 
-To enable OpenAPI and the Swagger UI we simple have to add this dependency to `pom.xml`
+To enable OpenAPI and the Swagger UI we simple have to add these dependencies to `pom.xml`
 
 ```xml
 <dependency>
     <groupId>org.springdoc</groupId>
     <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
     <version>2.3.0</version>
+</dependency>
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-validation</artifactId>
 </dependency>
 ```
 
@@ -263,10 +267,12 @@ we can add the OpenAPI information with the following annotations:
                 mediaType = MediaType.APPLICATION_JSON_VALUE,
                 schema = @Schema(implementation = GameResponse.class)))})
 @PostMapping("/")
-public GameResponse createGame(@RequestBody CreateGameRequest createGameRequest) {
+public @NotNull GameResponse createGame(@RequestBody CreateGameRequest createGameRequest) {
     return new GameResponse();
 }
 ```
+
+The @NotNull annotation comes from `import jakarta.validation.constraints.NotNull;`. It tells Swagger/OpenAPI that this response is never null.
 
 We can also add more information on the DTO classes:
 
@@ -276,9 +282,44 @@ We can also add more information on the DTO classes:
 public class CreateGameRequest {
     @Schema(description = "Defines the participating players. Each player name must be different and at least 2 players have to be provided",
             example = "[\"john doe\", \"jane doe\"]")
+    @NotNull 
     private String[] playerNames;
 }
 ```
+
+We also have to add @NotNull to all Response classes. Here is a example for the `GameResponse` class:
+
+```java
+@Getter @Setter @ToString
+public class GameResponse {
+    @NotNull
+    private String gameId; // secret ID to access the game
+    @NotNull
+    private PlayerData[] playerData; // returns the score per player
+    @NotNull
+    private String currentPlayerName;
+
+    // either BOOK or ROLL
+    // for BOOK the /book endpoint needs to be called
+    // for ROLL the /roll endpoint needs to be called
+    @NotNull
+    private String state;
+    @NotNull
+    private String[] usedBookingTypes; // returns the booking types used by the current player
+
+    // returns the available booking types for the current player
+    // this string should be used for the /book endpoint
+    @NotNull
+    private String[] availableBookingTypes;
+    @NotNull
+    private int[] diceRolls; // dice values the player rolled (1...6). array size = 5
+    @NotNull
+    private int rollRound; // for state==ROLL, returns the round 1,2,3
+}
+```
+
+If we miss this, our OpenAPI specification will say that all of those attributes can be null, which is not the case. While our clients could still work with this, it makes their job much harder, as a client needs to cover all of those "may be undefined/null" scenarios.
+
 
 It's always good practice to add those annotiations to all of your REST controller methods and all DTOs. It helps your consumers to understand your API, but it also helps you to think about your API, its use-cases, validations and limitations. You should do it right when you write the REST controller and the DTOs, not after completing the development as an afterthought.
 
@@ -316,7 +357,7 @@ public class GameController {
     private GameService gameService;
 
     @PostMapping("/")
-    public GameResponse createGame(@RequestBody CreateGameRequest createGameRequest) {
+    public @NotNull GameResponse createGame(@RequestBody CreateGameRequest createGameRequest) {
         KniffelGame game = gameService.createGame(createGameRequest.getPlayerNames());
         return new GameResponse(); // TODO map data of game into GameResponse
     }
